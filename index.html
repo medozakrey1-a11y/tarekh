@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>امتحان مادة التاريخ الوطني - 56 سؤالاً</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        (function(){
+            emailjs.init("0gjud3G2OU9xziiAc");
+        })();
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #0c0f1d; color: #e2e8f0; }
+        .dark-card { background: rgba(23, 27, 48, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-header { background: rgba(15, 19, 36, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .option-card { background: rgba(30, 36, 62, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.2s ease; }
+        .option-card:hover { border-color: #6366f1; background: rgba(49, 57, 96, 0.8); }
+        .option-card.selected { border-color: #6366f1; background: rgba(79, 70, 229, 0.25); }
+        
+        /* انيميشن الإشعار الجانبي */
+        #toastNotification {
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast-show { transform: translateX(0); opacity: 1; }
+        .toast-hide { transform: translateX(120%); opacity: 0; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white relative">
+
+    <!-- الإشعار الجانبي المتحرك عند اختيار الإجابة -->
+    <div id="toastNotification" class="toast-hide fixed top-20 left-6 z-50 bg-indigo-600 text-white px-5 py-3 rounded-2xl shadow-2xl border border-indigo-400/30 flex items-center gap-3">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+        <span class="font-bold text-sm">تم اختيار الإجابة بنجاح ✨</span>
+    </div>
+
+    <!-- 1. شاشة الدخول والمقدمة -->
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0f1d]">
+        <div class="dark-card w-full max-w-lg rounded-3xl p-8 shadow-2xl text-center space-y-6">
+            <div class="w-20 h-20 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-2xl mx-auto flex items-center justify-center text-4xl shadow-lg">
+                <i class="fa-solid fa-book-bookmark"></i>
+            </div>
+            
+            <div>
+                <h1 class="text-3xl font-black text-white mb-2">امتحان مادة التاريخ الوطني</h1>
+                <p class="text-indigo-400 font-bold text-lg">عدد الأسئلة: 56 سؤالاً</p>
+                <p class="text-emerald-400 font-extrabold text-xl mt-1">بالتوفيق يابطل 🚀</p>
+            </div>
+
+            <form onsubmit="startExam(event)" class="space-y-4 text-right">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">اسم الطالب ثلاثي:</label>
+                    <input type="text" id="studentName" required placeholder="أدخل اسمك بالكامل..." class="w-full px-4 py-3 bg-[#161b33] border border-slate-700/60 rounded-xl focus:ring-2 focus:ring-indigo-500 text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">رقم الهاتف:</label>
+                    <input type="tel" id="studentPhone" required placeholder="010xxxxxxxx" class="w-full px-4 py-3 bg-[#161b33] border border-slate-700/60 rounded-xl focus:ring-2 focus:ring-indigo-500 text-white outline-none">
+                </div>
+                <button type="submit" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition text-lg mt-4">
+                    ابدأ الامتحان الآن
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. واجهة الامتحان الرئيسية -->
+    <div id="examScreen" class="hidden min-h-screen flex flex-col">
+        <header class="glass-header sticky top-0 z-40 px-6 py-4">
+            <div class="max-w-6xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-xl shadow-md">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg text-white leading-tight">منصة الامتحان التفاعلي</h1>
+                        <p class="text-xs text-slate-400">التاريخ الوطني - 56 سؤالاً</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="bg-amber-500/10 border border-amber-500/30 px-4 py-1.5 rounded-full text-amber-400 font-bold flex items-center gap-2 text-sm">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="timer">210:00</span>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 text-sm">
+                        <i class="fa-solid fa-user text-indigo-400"></i>
+                        <span id="displayStudentName">طالب</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-5xl mx-auto w-full p-4 md:p-6 flex-1 space-y-6">
+            <div class="dark-card rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <button onclick="openSubmitModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>إنهاء وتسليم</span>
+                    </button>
+                    <button onclick="toggleGridModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold px-4 py-2.5 rounded-xl transition">
+                        خريطة الأسئلة
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4 flex-1 max-w-md">
+                    <span class="text-xs text-slate-400 whitespace-nowrap">التقدم الإجمالي:</span>
+                    <div class="flex-1 bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                    <span id="progressText" class="text-xs font-bold text-indigo-400">1/56</span>
+                </div>
+            </div>
+
+            <div class="dark-card rounded-3xl p-6 md:p-8 space-y-6 relative shadow-2xl">
+                <div class="flex justify-between items-center">
+                    <button onclick="toggleBookmark()" id="bookmarkBtn" class="text-slate-500 hover:text-amber-400 text-xl transition">
+                        <i class="fa-regular fa-bookmark"></i>
+                    </button>
+                    <span id="qBadge" class="bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-bold px-4 py-1.5 rounded-xl text-sm">
+                        سؤال 1 من 56
+                    </span>
+                </div>
+
+                <h2 id="questionText" class="text-xl md:text-2xl font-bold text-white leading-relaxed pt-2">
+                    جاري تحميل السؤال...
+                </h2>
+
+                <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4"></div>
+
+                <div class="flex justify-between items-center pt-6 border-t border-slate-800">
+                    <button id="prevBtn" onclick="prevQuestion()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold px-6 py-3 rounded-xl transition flex items-center gap-2 disabled:opacity-40">
+                        <i class="fa-solid fa-arrow-right"></i> السؤال السابق
+                    </button>
+                    <button id="nextBtn" onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
+                        السؤال التالي <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 3. نافذة تأكيد التسليم التفاعلية المطلوبة -->
+    <div id="submitConfirmModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="dark-card w-full max-w-md rounded-3xl p-6 text-center space-y-6 shadow-2xl border border-indigo-500/30">
+            <div class="w-20 h-20 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full mx-auto flex items-center justify-center text-4xl">
+                <i class="fa-solid fa-user-ninja"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black text-white mb-2">عارفين إنك شاطر 😉</h3>
+                <p class="text-slate-300 text-base">بس راجع الأسئلة كويس قبل التسليم النهائي!</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button onclick="reviewExamFromStart()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> هراجع أسئلتي
+                </button>
+                <button onclick="submitExamFinal()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> متأكد من إجاباتي
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. نافذة خريطة الأسئلة -->
+    <div id="gridModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="dark-card w-full max-w-2xl rounded-3xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-white">خريطة جميع الأسئلة (56)</h3>
+                <button onclick="toggleGridModal()" class="text-slate-400 hover:text-white text-xl">×</button>
+            </div>
+            <div id="questionsGrid" class="grid grid-cols-6 sm:grid-cols-10 gap-2 max-h-[60vh] overflow-y-auto p-2"></div>
+        </div>
+    </div>
+
+    <!-- 5. شاشة النتيجة النهائية مع إبراز الإجابات الخاطئة -->
+    <div id="resultScreen" class="hidden min-h-screen py-10 px-4 flex items-center justify-center">
+        <div class="dark-card w-full max-w-3xl rounded-3xl p-8 space-y-8 shadow-2xl">
+            <div class="text-center space-y-3">
+                <div class="w-24 h-24 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full mx-auto flex items-center justify-center text-5xl shadow-lg">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h1 class="text-4xl font-black text-emerald-400">عاش يابطل! 🔥</h1>
+                <p class="text-slate-400 text-lg">تم تسليم امتحان مادة التاريخ الوطني وإرسال النتيجة للمعلم بنجاح.</p>
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 text-right space-y-3">
+                <div class="flex justify-between text-base"><span class="text-slate-400">اسم الطالب:</span> <span id="resName" class="font-bold text-white"></span></div>
+                <div class="flex justify-between text-base"><span class="text-slate-400">رقم الهاتف:</span> <span id="resPhone" class="font-bold text-white"></span></div>
+                <div class="flex justify-between text-base"><span class="text-slate-400">النتيجة النهائية:</span> <span id="resScore" class="font-extrabold text-indigo-400 text-lg"></span></div>
+                <div class="flex justify-between text-base"><span class="text-slate-400">النسبة المئوية:</span> <span id="resPercentage" class="font-extrabold text-emerald-400 text-lg"></span></div>
+                <div class="flex justify-between text-base"><span class="text-slate-400">الوقت المستغرق:</span> <span id="resTime" class="font-bold text-white"></span></div>
+            </div>
+
+            <div id="sendingStatus" class="text-center text-indigo-400 font-semibold text-sm">جاري إرسال النتيجة لبريد الأستاذ...</div>
+
+            <!-- قائمة مراجعة الإجابات والأسئلة الخاطئة -->
+            <div class="space-y-4 pt-4 border-t border-slate-800">
+                <h3 class="text-xl font-bold text-white text-right">تقرير إجابات الأسئلة 📝</h3>
+                <div id="wrongAnswersContainer" class="space-y-4 max-h-[50vh] overflow-y-auto pr-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // مصفوفة الـ 56 سؤالاً كاملة مع تحديد الخيار الصحيح (0-index)
+        const questions = [
+            { id: 1, question: "لعب العلماء في الأزهر الشريف عام ١٧٩٥ دور...", options: ["سياسي و اقتصادي", "سياسي وديني", "ثقافي و سياسي", "اجتماعي"], correct: 1 },
+            { id: 2, question: "استهدف نابليون من إدخال المطابع إلى مصر عدة جوانب منها جانب تشابه مع الأسكندر وهو....", options: ["توجيه الرأي العام", "تزييف الضمير الوطني", "التقرب من الطبقة الوسطى", "محاولة كسب الشرعية السياسية والدينية"], correct: 3 },
+            { id: 3, question: "تعتبر الثورة العرابية تطبيق مباشر لأفكار....", options: ["جمال الدين الأفغاني", "محمد عبده", "مصطفى كامل", "سعد زغلول"], correct: 0 },
+            { id: 4, question: "كان مشاركة الشعب في الثورة العرابية تأكيدا على.....", options: ["المادة الرابعة الدستور المصري", "ولادة مفهوم السلطة", "المادة الأولى من الدستور المصري", "تؤكد على مفاهيم عبدالله الشرقاوي"], correct: 0 },
+            { id: 5, question: "يعتبر رفض محمد فريد لمد تمييز قناة السويس دليلا على....", options: ["حرصه على البنية التحتية الوطنية", "ربطه للإنجازات الاجتماعية بالسياسية", "رغبته في تطبيق المادة الرابعة الدستور المصري", "رفضه استبداد حكم السلطان العثماني"], correct: 0 },
+            { id: 6, question: "مشاركة المرأة في ثورة ١٩١٩ ومشاركة المرأة في مجلس النواب عهد الرئيس الراحل جمال عبدالناصر تعبر عن......", options: ["ارتفاع مكانة المرأة كما هو معتاد", "تغير في الموروث", "تغير في الوضع السياسي", "تطبيق لمفهوم صفية زغلول ان المرأة التي لا تشارك نساؤها في الحكم أمة ناقصة"], correct: 1 },
+            { id: 7, question: "تعتبر اخطر الوسائل التي استخدمتها بريطانيا في زيادة مدة بقائها داخل الدولة المصرية....", options: ["تعميم الجهل وتحجيم الوعي", "تقليص الدور الوطني للجيش", "ازدواجية القضاء", "نفي سعد زغلول"], correct: 0 },
+            { id: 8, question: "أدركت الدولة المصرية ضرورة توحيد الدول العربية فقام الرئيس جمال عبدالناصر بمعاهدة الدفاع المشترك بينه وبين سوريا عام ١٩٥٥. بناء على هذه المعلومة السابقة نستنتج ان الرئيس جمال عبدالناصر طبق مفاهيم.....", options: ["مصطفى كامل(دعا إلى انشاء الجامعة الوطنية لجمع الدول العربية)", "محمد فريد(دفع بثروته في المؤتمرات العالمية ليوحد الدول العربية)", "جمال الدين الأفغاني (احد رواد التيار الديني)", "محمد عبده (تلميذ جمال الدين الأفغاني واحد رواد التيار الديني)"], correct: 2 },
+            { id: 9, question: "في نهاية العقد السابع وبداية العقد الثامن من القرن ال١٩ الميلادي تحولت مصر الى مسرح للصراع بين القوى الكبرى يعود ذلك إلى....", options: ["اللوجستية المصرية", "اتساع الديون والقروض التي اتخذها إسماعيل", "معركة التل الكبير ١٨٨٢ حيث بداية العقد الثامن", "چيوسياسية الدولة المصرية من حيث التركيب الديموجرافي"], correct: 0 },
+            { id: 10, question: "يرى المؤرخين أن حملة نابليون على مصر هي صورة مبكرة ل....", options: ["الاستعمار الحديث", "الاستعمار التقليدي", "الإعلام المضلل", "القوة المحررة من ظلم المماليك"], correct: 0 },
+            { id: 11, question: "ظهرت سياسة بريطانيا الإحتلال الغير مباشر من خلال.....", options: ["تفريغ مؤسسات الدولة من قيمتها", "الإبقاء على الخليفة العثماني", "الإبقاء على السلطة الإقليمية كما هي", "توجيه الزراعة في مصر لخدمة مصالحها"], correct: 0 },
+            { id: 12, question: "بالرغم من الإصلاحات الكثيرة التي قام بها محمد علي إلا انه نال بعض النقد من المؤرخين فأي مما يأتي قد يعتبر نقد على سياسته....", options: ["حاكم ظالم", "قصر نظر حكمه", "الرغبة في التوسع الإقليمي", "فرض نظام الحماية الجمركية"], correct: 1 },
+            { id: 13, question: "قامت بريطانيا بإحدى التحركات الدبلوماسية في نهاية العقد الرابع من القرن ال١٩ والتي كان محركها الأساسي هو....", options: ["قيام الثورة الصناعية في أوروبا", "رغبة بريطانيا في فرض السيطرة على التجارة", "رغبة بريطانيا في الحصول على المواد الخام", "رغبة بريطانيا في توجيه الزراعة المصرية"], correct: 0 },
+            { id: 14, question: "من تداعيات إلغاء الحماية الجمركية ١٨٣٨ على مصر والتي تأثرت أيضا في لندن ١٨٤٠....", options: ["تقليص القدرة العسكرية", "تدهور الإقتصاد التصديري المصري", "تقلص الحدود المصرية", "العودة لنفوذ السلطان العثماني"], correct: 0 },
+            { id: 15, question: "قام الرئيس جمال عبدالناصر بتأميم شركة قناة السويس وتمصير الشركات فما الدافع الأساسي الذي دفعه لذلك....", options: ["استخدام الولايات المتحدة الملفات السياسية للضغط عليه", "رفض الرأس ماليين المصريين والأجانب للمساهمة في المشروعات الكبرى", "رغبته في تمويل السد العالي بأموال مصرية", "رغبته في توفير مصادر الطاقة"], correct: 1 },
+            { id: 16, question: "قامت الثورة في عهد الرئيس الراحل حسني مبارك بدايةً على وسائل التواصل الإجتماعي... كان يمكن لمصر ان تتفادى هذه الثورة لو تحلى الشعب بـ...", options: ["القدرة النقدية", "التفتح على جميع انواع المعلومات والتأثر ببعض التوجهات", "متابعة قيادات مجهولة", "متابعة الإعلام الخارجي"], correct: 0 },
+            { id: 17, question: "يهدف الإستعمار الحديث إلى ضرب عصب الدولة من الناحية....", options: ["الإقتصادية", "الإجتماعية", "الإدارية", "النفسية"], correct: 0 },
+            { id: 18, question: "تقوم دولة الصين بتصنيع التكنولوجيا الخاصة بها وعدم تصديرها إلى خارج بلادها.يدل ذلك على ادارك الحكومة الصينية خطورة....", options: ["الإحتكار التكنولجي", "الهجمات السيبرانية", "الضغط الثقافي", "الضغط الإقتصادي"], correct: 0 },
+            { id: 19, question: "رمية بلا رام ينطبق هذا القول على....", options: ["حجر رشيد", "كتاب وصف مصر", "المجمع العلمي", "الدواوين"], correct: 0 },
+            { id: 20, question: "رب ضارة نافعة هذا ما نعرفه ولكن كيف يمكن للنافعة ان تصبح ضارة. من خلال:", options: ["كتاب وصف مصر", "حجر رشيد", "الدواوين المحلية", "ثورة ١٩١٩"], correct: 0 },
+            { id: 21, question: "بعد تصريح ٢٨فبراير ١٩٢٢ قررت بريطانيا الإعتراف بمصر كدولة مستقلة مع التعهد بالدفاع عنها... مما يدل على حرص بريطانيا على:", options: ["التدخل في السيادة المصرية", "الحرص على عدم إقامة جيش وطني", "الرغبة في الدفاع عن قناة السويس", "الرغبة في حماية الأقليات"], correct: 0 },
+            { id: 22, question: "يمكن لنا ان نستنتج أن وجه الإختلاف بين دستور ١٩٢٣ ودستورنا الحالي هو.....", options: ["تقييد السلطة المركزية", "تزييف رغبات الشعب في صناديق الاقتراع", "الحرص على خدمة حاجات السكان", "القدرة على اختيار اعضاء السلطة"], correct: 0 },
+            { id: 23, question: "تشابه موقف القوات البريطانية في حادث قسم الاسماعيلية مع موقف:", options: ["كامس", "قمبيز الثاني", "الإسكندر الأكبر", "نابليون"], correct: 0 },
+            { id: 24, question: "تشابه كل من اواريس وقاعدة قناة السويس البريطانيا في:", options: ["تحقيق مكاسب اقتصادية ضخمة", "طمس الهوية المصرية", "السيطرة على المصالح الإستراتيجية", "تأمين طرق التجارة"], correct: 2 },
+            { id: 25, question: "حدث تطبيق مبكر لسياسة الإستعمار الحديث ويمكن ان يظهر ذلك خلال عهد..", options: ["الخديو إسماعيل", "محمد علي", "كامس", "قمبيز الثاني"], correct: 0 },
+            { id: 26, question: "اتباع بريطانيا سياسة محصول الواحد عرض مصر لخطورة .....", options: ["تقلبات السوق العالمية", "تقلبات السوق الإقليمية", "تقلبات السوق المحلية", "التبعية للإقتصاد الإقليمي"], correct: 0 },
+            { id: 27, question: "يكمن وجه الشبه بين الحملة الفرنسية ونابليون...", options: ["احداث صدمة عسكرية للمصريين", "احداث صدمة حضارية", "ابراز دور العلماء", "الأولي والثانية"], correct: 0 },
+            { id: 28, question: "الأمة التي لا تشارك نساؤها في نهضتها هي امة ناقصة تبنى هذا الرأي...", options: ["عائشة التيمورية", "صفية زغلول", "هدى شعراوي", "اياح حتب"], correct: 0 },
+            { id: 29, question: "ود المرء لا يعرف وقت الصلح والمحبة... ينطبق هذا القول على:", options: ["نابليون", "الفرس", "الهكسوس", "الرومان"], correct: 0 },
+            { id: 30, question: "يعتبر السبب الرئيسي لفساد الحياة السياسية قبل ثورة ٢٣يوليو ١٩٥٢ هو...", options: ["تجويف مؤسسات الدولة", "كره النظام الملكي لحزب الوفد", "وهن الإرادة الشعبية", "قوة حكام أحزاب الأقلية"], correct: 0 },
+            { id: 31, question: "الثورة العرابية لها فضل كبير في ترسيخ قيمة المشاركة السياسية... الثمرة الأولى لهذا العمل قد ظهرت عقب:", options: ["مشاركة المرأة المصرية في مجلس النواب", "تصريح ٢٨فبراير ١٩٢٢", "معاهدة ١٩٥٤", "تزويير رغبات الشعب في صناديق الاقتراع"], correct: 1 },
+            { id: 32, question: "ترسل مصر المساعدات للسعودية وتندد بالحرب الأمريكية الإيرانية... نستنتج من هذه الأحداث المعاصرة:", options: ["ثبات رؤية السياسة المصرية منذ عام ١٩٥٤", "تطبيق الدستور المصري المادة الرابعة", "حرص مصر على حفظ الإستقرار القاري", "استخدام مصر التدويل لكسب الشرعنة السياسية"], correct: 0 },
+            { id: 33, question: "عمل الاستعمار الفرنسي في المغرب ودانلوب في مصر على حصر التعليم في فئة محددة. وجه الشبه بين السياستين:", options: ["إستقطاب النخبة الشعبية", "التأثير في البيروقراطية", "تساوي التأثير على مصر والجزائر", "الأولى والثالثة صحيحة"], correct: 0 },
+            { id: 34, question: "قام نهج رفاعة الطهطاوي في التعامل مع الثقافة الغربية على...", options: ["التوسط", "التصفية والتحليل", "مقاومة الاستبداد", "ترجمة الكتب ونقل العلوم نصا مترجمة"], correct: 1 },
+            { id: 35, question: "ظهور الإعلامي معتز مطر بالتنديد بالسياسة المصرية يهدف إلى...", options: ["القضاء على المواطنة", "تزييف الضمير الوطني", "تشتيت الرأي العام", "زعزعة ثقة المواطنين بمؤسسات الحكومة وقدرتها على إدارة الشئون"], correct: 3 },
+            { id: 36, question: "تحرص الدولة المصرية في الآونة الآخيرة على تدريس مادة البرمجة ويهدف ذلك بصورة محورية إلى....", options: ["تغيير وضع مصر من المستهلك إلى المنتج", "حماية استقلال القرار الوطني", "تجنب الهجمات الإقليمية", "احتكار التكنولوجيا العربية"], correct: 1 },
+            { id: 37, question: "يعتبر قرار حفر قناة السويس تعبيرا عن احدى مرتكزات الدولة وهي...", options: ["السلطة والحيز الجغرافي", "السلطة والشعب", "السيادة والحيز الجغرافي", "السيادة والشعب"], correct: 2 },
+            { id: 38, question: "بالرغم من عرضه على محمد علي حفر قناة السويس إلا انه رفض. يتشابه موقف محمد علي مع:", options: ["الخديو إسماعيل", "جمال عبدالناصر", "مصطفى النحاس", "سعد زغلول"], correct: 1 },
+            { id: 39, question: "تتشابه كل من نكسة ١٩٦٧ والحملة الفرنسية ١٧٩٨ في:", options: ["احداث صدمة حضارية شاملة", "توجيه الرأي العام للتشكيك في المؤسسات", "صدمة التنظيم الميداني", "طول مدة الهزيمة"], correct: 2 },
+            { id: 40, question: "يمكن ان نقول ان أحمس هو مهندس بناء الدولة والإستقلال. ينطبق هذا القول على....", options: ["كامس مهندس النصر", "جمال عبدالناصر", "جمال الدين الأفغاني", "عبدالله الشرقاوي"], correct: 1 },
+            { id: 41, question: "ومن يرضى الهوان يعش أبد الدهر مكسور الجناح... ينطبق هذا القول على أفكار:", options: ["الضباط الأحرار", "هدى شعراوي", "سقنن رع", "الأولى والثالثة"], correct: 3 },
+            { id: 42, question: "قام رفاعة الطهطاوي بترجمة العلوم الغربية مما يدل على....", options: ["ان اللغة صارت وعاء للعلوم والثقافة", "تقدير جهود الغير", "ترسيخ مكانة الأزهر العلمية", "الإعتدال والتوسط"], correct: 1 },
+            { id: 43, question: "ما هي العاطفة الأساسية التي اتخذها محمد علي ليبني عليها باقي أركان دولته؟", options: ["القوة الإقتصادية", "القوة العسكرية", "القوة الثقافية", "الحصول على السلطات المحلية"], correct: 1 },
+            { id: 44, question: "العامل الأساسي الباطني من تدخل الدول الأجنبة في شئون مصر في النصف الثاني من القرن ال١٩ هو:", options: ["توسع الخديو إسماعيل في التداين", "الممر اللوچيستي الوليد في مصر", "عودة حركة الفتوحات في عهد الخديو إسماعيل", "احياء مشروع محمد علي الإقتصادي"], correct: 2 },
+            { id: 45, question: "هدف نابليون بمنشوره اني جئت لأشرك المصريين في حكم بلادهم وأخلصهم من ظلم المماليك:", options: ["نشر الديموقراطية", "ثوران الشعب على السلطة السابقة", "استمالة الطبقة الوسطى", "التمهيد لهدفه الرئيسي"], correct: 2 },
+            { id: 46, question: "كان للمجمع العلمي المصري هدفين هدف بيّن وهدف باطن. الهدف الباطن هو:", options: ["اشراك المصريين في حكم البلاد", "العمل على دراسة الحضارة المصرية", "نشر العلوم والثقافة", "استغلال موارد مصر"], correct: 3 },
+            { id: 47, question: "يمكن ان نستنتج من سياسة بريطانيا وسياسة الرومان ان كلاهما اتبع نظام حكم:", options: ["مهمل لقيمة الدولة واستنزاف مواردها", "رغب في السيطرة على الشرق الأقصى", "نظام حكم اوتوقراطي", "احتلال غير مباشر"], correct: 2 },
+            { id: 48, question: "إذا استبدَّ حاكمٌ في شعبِهِ ضاعَ العدلُ واستُبيحَ الأمانُ... تتفق الأبيات مع توجه التيار الديني في:", options: ["نشر التعليم", "تحرير العقل من الجمود والتخلف", "تطبيق الشورى", "التخلص من استبداد المماليك"], correct: 2 },
+            { id: 49, question: "خلال أحداث رواندا ساهمت بعض وسائل الإعلام في نشر خطاب يزيد الإنقسام. يعكس ذلك تداعيات حروب الجيل الرابع في:", options: ["نشر الإحباط وزعزعة الثقة", "تقويض الوحدة الوطنية", "التأثير في صناعة القرار", "تضخيم السلبيات"], correct: 1 },
+            { id: 50, question: "يتطابق تحذير تيار الإصلاح الديني بمصر من خطر الجمود مع مواجهة مخاطر:", options: ["الإعلام المضلل", "الفقاعة المعلوماتية", "القيادات الوهمية", "الهجوم السيبراني"], correct: 1 },
+            { id: 51, question: "يرتبط تدهور الحياة الحزبية وفشل المفاوضات قبل ثورة 23 يوليو 1952 بـ:", options: ["الثورات الشعبية الفعالة", "تأرجح الموقف الملكي", "ضعف القيادات الوطنية", "غياب الإستقرار السياسي"], correct: 2 },
+            { id: 52, question: "يرتبط تحكم كبار ملاك الأراضي في القرار الإقتصادي بمصر في النصف الثاني من القرن ال٢٠ بـ:", options: ["هجرة الفلاحين للمدن", "انحراف البنيان الإنتاجي", "مظاهر التهميش الإجتماعي", "فرض تبعية الفلاحين لهم"], correct: 3 },
+            { id: 53, question: "يستدل من هجرة سكان الريف في القرن ال١٩ وظهور العشوائيات قبل ١٩٥٢ على:", options: ["ضعف التماسك", "هيمنة الإقطاع وتهميش الفلاح", "تفاقم الأزمات المعيشية", "تدهور المظهر الجمالي للمدن"], correct: 2 },
+            { id: 54, question: "يستثنى من فاعليات التحرك لقادة تنظيم الضباط الأحرار:", options: ["دقة التخطيط", "سرعة حسم الموقف العسكري", "تحقيق التوافق الوطني", "توظيف التأييد الشعبي"], correct: 2 },
+            { id: 55, question: "ومن يملكِ الأقواتِ يملكْ مصيرَنا. عمل على تجنب هذا البيت في فترة من فترات حكم مصر:", options: ["الخديو إسماعيل", "جمال عبدالناصر", "الخديو توفيق", "عبدالله الشرقاوي"], correct: 1 },
+            { id: 56, question: "القدرة النقدية والتفتح على جميع المعلومات والتأثر ببعض التوجهات تعتبر من أهم ركائز:", options: ["بناء وعي المواطن لمواجهة حرب الشائعات", "التبعية الإعلامية", "متابعة القيادات المجهولة", "التأثر السلبي بالإعلام الخارجي"], correct: 0 }
+        ];
+
+        let currentIdx = 0;
+        let userAnswers = {};
+        let bookmarked = {};
+        let studentData = { name: "", phone: "" };
+        let timerInterval;
+        let totalSeconds = 210 * 60;
+
+        function startExam(e) {
+            e.preventDefault();
+            studentData.name = document.getElementById('studentName').value.trim();
+            studentData.phone = document.getElementById('studentPhone').value.trim();
+
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.remove('hidden');
+            document.getElementById('displayStudentName').innerText = studentData.name;
+
+            loadQuestion();
+            startTimer();
+            buildGrid();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    submitExamFinal();
+                    return;
+                }
+                totalSeconds--;
+                let hrs = Math.floor(totalSeconds / 3600);
+                let mins = Math.floor((totalSeconds % 3600) / 60);
+                let secs = totalSeconds % 60;
+                
+                let display = hrs > 0 
+                    ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+                    : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                document.getElementById('timer').innerText = display;
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('qBadge').innerText = `سؤال ${currentIdx + 1} من 56`;
+            document.getElementById('questionText').innerText = q.question;
+            document.getElementById('progressText').innerText = `${currentIdx + 1}/56`;
+            document.getElementById('progressBar').style.width = `${((currentIdx + 1) / 56) * 100}%`;
+
+            let labels = ['أ', 'ب', 'ج', 'د'];
+            let optionsHtml = '';
+            q.options.forEach((opt, idx) => {
+                let isSelected = userAnswers[currentIdx] === idx;
+                let cardClass = isSelected ? 'option-card selected' : 'option-card';
+                let radioIcon = isSelected ? 'fa-circle-dot text-indigo-400' : 'fa-circle text-slate-600';
+
+                optionsHtml += `
+                    <div onclick="selectOption(${idx})" class="${cardClass} rounded-2xl p-4 cursor-pointer flex items-center justify-between">
+                        <span class="text-slate-200 font-semibold text-base">${opt}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-400">${labels[idx]}</span>
+                            <i class="fa-regular ${radioIcon} text-lg"></i>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('optionsContainer').innerHTML = optionsHtml;
+            document.getElementById('bookmarkBtn').className = bookmarked[currentIdx] ? "text-amber-400 text-xl" : "text-slate-500 hover:text-amber-400 text-xl";
+
+            document.getElementById('prevBtn').disabled = currentIdx === 0;
+            let nextBtn = document.getElementById('nextBtn');
+            if (currentIdx === questions.length - 1) {
+                nextBtn.innerHTML = `تسليم الامتحان <i class="fa-solid fa-check mr-2"></i>`;
+                nextBtn.className = "bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center gap-2";
+            } else {
+                nextBtn.innerHTML = `السؤال التالي <i class="fa-solid fa-arrow-left"></i>`;
+                nextBtn.className = "bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center gap-2";
+            }
+
+            updateGridUI();
+        }
+
+        function selectOption(idx) {
+            userAnswers[currentIdx] = idx;
+            showToast();
+            loadQuestion();
+        }
+
+        function showToast() {
+            let toast = document.getElementById('toastNotification');
+            toast.classList.remove('toast-hide');
+            toast.classList.add('toast-show');
+            setTimeout(() => {
+                toast.classList.remove('toast-show');
+                toast.classList.add('toast-hide');
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            if (currentIdx < questions.length - 1) {
+                currentIdx++;
+                loadQuestion();
+            } else {
+                openSubmitModal();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIdx > 0) {
+                currentIdx--;
+                loadQuestion();
+            }
+        }
+
+        function toggleBookmark() {
+            bookmarked[currentIdx] = !bookmarked[currentIdx];
+            loadQuestion();
+        }
+
+        function toggleGridModal() {
+            document.getElementById('gridModal').classList.toggle('hidden');
+        }
+
+        function openSubmitModal() {
+            document.getElementById('submitConfirmModal').classList.remove('hidden');
+        }
+
+        function reviewExamFromStart() {
+            document.getElementById('submitConfirmModal').classList.add('hidden');
+            currentIdx = 0;
+            loadQuestion();
+        }
+
+        function buildGrid() {
+            let html = '';
+            for (let i = 0; i < 56; i++) {
+                html += `<button id="gridBtn-${i}" onclick="jumpToQuestion(${i})" class="h-10 rounded-xl font-bold border text-sm transition flex items-center justify-center bg-slate-800/60 border-slate-700 text-slate-400">${i + 1}</button>`;
+            }
+            document.getElementById('questionsGrid').innerHTML = html;
+        }
+
+        function updateGridUI() {
+            for (let i = 0; i < 56; i++) {
+                let btn = document.getElementById(`gridBtn-${i}`);
+                if (!btn) continue;
+
+                if (i === currentIdx) {
+                    btn.className = "h-10 rounded-xl font-bold border text-sm transition flex items-center justify-center bg-indigo-600 border-indigo-400 text-white ring-2 ring-indigo-400";
+                } else if (userAnswers[i] !== undefined) {
+                    btn.className = "h-10 rounded-xl font-bold border text-sm transition flex items-center justify-center bg-emerald-600/30 border-emerald-500/50 text-emerald-300";
+                } else {
+                    btn.className = "h-10 rounded-xl font-bold border text-sm transition flex items-center justify-center bg-slate-800/60 border-slate-700 text-slate-400";
+                }
+            }
+        }
+
+        function jumpToQuestion(i) {
+            currentIdx = i;
+            loadQuestion();
+            toggleGridModal();
+        }
+
+        function submitExamFinal() {
+            clearInterval(timerInterval);
+            document.getElementById('submitConfirmModal').classList.add('hidden');
+
+            let score = 0;
+            let reviewHtml = '';
+
+            questions.forEach((q, idx) => {
+                let uAns = userAnswers[idx];
+                let isCorrect = uAns === q.correct;
+                if (isCorrect) score++;
+
+                let userAnsText = uAns !== undefined ? q.options[uAns] : 'لم يتم الإجابة';
+                let correctAnsText = q.options[q.correct];
+
+                reviewHtml += `
+                    <div class="p-4 rounded-2xl border ${isCorrect ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-rose-500/30 bg-rose-500/5'} text-right space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-white text-sm">سؤال ${idx + 1}: ${q.question}</span>
+                            <span class="text-xs font-bold px-3 py-1 rounded-full ${isCorrect ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">
+                                ${isCorrect ? 'إجابة صحيحة ✓' : 'إجابة خاطئة ✗'}
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-300">إجابتك: <span class="${isCorrect ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">${userAnsText}</span></div>
+                        ${!isCorrect ? `<div class="text-xs text-emerald-400 font-bold">الإجابة الصحيحة النموذجية: ${correctAnsText}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            let total = questions.length;
+            let percentage = ((score / total) * 100).toFixed(1);
+            let timeTakenSec = (210 * 60) - totalSeconds;
+            let timeTakenMin = Math.floor(timeTakenSec / 60) + " دقيقة و " + (timeTakenSec % 60) + " ثانية";
+
+            document.getElementById('examScreen').classList.add('hidden');
+            document.getElementById('gridModal').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+
+            document.getElementById('resName').innerText = studentData.name;
+            document.getElementById('resPhone').innerText = studentData.phone;
+            document.getElementById('resScore').innerText = `${score} من ${total}`;
+            document.getElementById('resPercentage').innerText = `${percentage}%`;
+            document.getElementById('resTime').innerText = timeTakenMin;
+            document.getElementById('wrongAnswersContainer').innerHTML = reviewHtml;
+
+            // إرسال الإيميل التلقائي المباشر عبر EmailJS
+            emailjs.send("service_ph07yuc", "template_0205j8d", {
+                student_name: studentData.name,
+                student_phone: studentData.phone,
+                score: score,
+                total: total,
+                percentage: percentage,
+                time_taken: timeTakenMin
+            }).then(function(response) {
+                document.getElementById('sendingStatus').innerText = "✅ تم إرسال النتيجة إلى بريدك الإلكتروني بنجاح!";
+                document.getElementById('sendingStatus').className = "text-center text-emerald-400 font-semibold text-sm";
+            }, function(error) {
+                document.getElementById('sendingStatus').innerText = "❌ حدث خطأ في إرسال البريد التلقائي.";
+                document.getElementById('sendingStatus').className = "text-center text-rose-400 font-semibold text-sm";
+            });
+        }
+    </script>
+</body>
+</html>
